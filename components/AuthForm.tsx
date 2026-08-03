@@ -29,7 +29,7 @@ export function AuthForm() {
     });
     setBusy(false);
     if (signInError) {
-      setError("Identifiants incorrects.");
+      setError(signInError.message);
       return;
     }
     router.push("/cave");
