@@ -18,11 +18,12 @@ export interface Bottle {
   photo_url: string | null;
   created_by: string | null;
   created_at: string;
+  consumed_at: string | null;
 }
 
 export type BottleFormFields = Omit<
   Bottle,
-  "id" | "lot_id" | "created_by" | "created_at"
+  "id" | "lot_id" | "created_by" | "created_at" | "consumed_at"
 >;
 
 /** Vue groupée : un lot = N lignes physiques identiques regroupées pour l'affichage. */
@@ -43,6 +44,30 @@ export interface BottleLot {
   commentaire: string | null;
   photo_url: string | null;
   created_at: string;
+  consumed_at: string | null;
+}
+
+/** Enveloppe une seule ligne (ex. bouteille consommée) au format BottleLot, pour réutiliser BottleCard/DetailModal. */
+export function toSingleLot(bottle: Bottle): BottleLot {
+  return {
+    lot_id: bottle.id,
+    quantite: 1,
+    bottle_ids: [bottle.id],
+    nom: bottle.nom,
+    annee: bottle.annee,
+    type: bottle.type,
+    igp: bottle.igp,
+    aop: bottle.aop,
+    vignoble: bottle.vignoble,
+    cepages: bottle.cepages,
+    gamme: bottle.gamme,
+    etagere: bottle.etagere,
+    conservation: bottle.conservation,
+    commentaire: bottle.commentaire,
+    photo_url: bottle.photo_url,
+    created_at: bottle.created_at,
+    consumed_at: bottle.consumed_at,
+  };
 }
 
 export function groupIntoLots(bottles: Bottle[]): BottleLot[] {
@@ -71,6 +96,7 @@ export function groupIntoLots(bottles: Bottle[]): BottleLot[] {
       commentaire: first.commentaire,
       photo_url: first.photo_url,
       created_at: first.created_at,
+      consumed_at: first.consumed_at,
     };
   });
 }

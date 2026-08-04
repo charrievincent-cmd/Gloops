@@ -2,9 +2,9 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Loader2, Lock, User, Wine } from "lucide-react";
+import { AlertCircle, Loader2, Lock, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { C, FONTS } from "@/lib/design-tokens";
+import { BRAND_GRADIENT, C, FONTS } from "@/lib/design-tokens";
 import { Field, TextInput } from "@/components/ui";
 
 export function AuthForm() {
@@ -51,21 +51,23 @@ export function AuthForm() {
         <div style={{ textAlign: "center", marginBottom: 32 }}>
           <div
             style={{
-              width: 56,
-              height: 56,
+              width: 64,
+              height: 64,
               borderRadius: "50%",
-              background: `linear-gradient(160deg, ${C.bordeaux}, #4A1223)`,
+              background: C.bgAlt,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 16px",
-              boxShadow: `0 0 0 1px ${C.hairline}, 0 8px 24px rgba(122,32,54,0.35)`,
+              overflow: "hidden",
+              boxShadow: `0 0 0 1px ${C.hairline}, 0 8px 24px ${C.shadow}`,
             }}
           >
-            <Wine size={26} color={C.goldSoft} strokeWidth={1.5} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/icons/icon-mark.png" alt="" style={{ width: "78%", height: "78%", objectFit: "contain" }} />
           </div>
           <h1 style={{ fontFamily: FONTS.display, fontSize: 30, color: C.parchment, margin: 0, letterSpacing: 0.3 }}>
-            Ma Cave
+            Gloops <span style={{ color: C.copper }}>2.0</span>
           </h1>
           <p
             style={{
@@ -120,14 +122,15 @@ export function AuthForm() {
           <button
             type="submit"
             disabled={busy}
+            className="gloops-btn"
             style={{
               width: "100%",
               marginTop: 18,
               padding: "11px 0",
-              borderRadius: 8,
+              borderRadius: 9,
               border: "none",
-              background: `linear-gradient(160deg, ${C.bordeauxBright}, ${C.bordeaux})`,
-              color: C.parchment,
+              background: BRAND_GRADIENT,
+              color: "#FFF6EA",
               fontWeight: 600,
               fontSize: 14,
               cursor: busy ? "default" : "pointer",
@@ -136,6 +139,7 @@ export function AuthForm() {
               alignItems: "center",
               justifyContent: "center",
               gap: 8,
+              boxShadow: `0 6px 18px ${C.shadow}`,
             }}
           >
             {busy && <Loader2 size={15} style={{ animation: "spin 1s linear infinite" }} />}

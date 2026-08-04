@@ -1,7 +1,7 @@
 "use client";
 
 import type { InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from "react";
-import { C, FONTS, GAMME_LABEL, inputStyle } from "@/lib/design-tokens";
+import { BRAND_GRADIENT, C, FONTS, GAMME_LABEL, inputStyle } from "@/lib/design-tokens";
 
 export function Field({ label, children }: { label: string; children: ReactNode }) {
   return (
@@ -72,7 +72,7 @@ export function GammeBadge({ gamme }: { gamme?: string | null }) {
         padding: "2px 7px",
         borderRadius: 20,
         color: isTop ? "#1B1712" : C.parchment,
-        background: isTop ? C.gold : "rgba(255,255,255,0.08)",
+        background: isTop ? C.gold : C.overlaySoft,
         border: isTop ? "none" : `1px solid ${C.hairline}`,
       }}
     >
@@ -98,24 +98,21 @@ export function ActionBtn({
   disabled?: boolean;
   type?: "button" | "submit";
 }) {
-  const bg = primary
-    ? `linear-gradient(160deg, ${C.bordeauxBright}, ${C.bordeaux})`
-    : danger
-      ? "transparent"
-      : "rgba(255,255,255,0.06)";
-  const color = danger ? C.danger : C.parchment;
+  const bg = primary ? BRAND_GRADIENT : danger ? "transparent" : C.overlaySoft;
+  const color = danger ? C.danger : primary ? "#FFF6EA" : C.parchment;
   const border = danger ? `1px solid ${C.danger}55` : primary ? "none" : `1px solid ${C.hairline}`;
   return (
     <button
       type={type}
       onClick={onClick}
       disabled={disabled}
+      className="gloops-btn"
       style={{
         display: "flex",
         alignItems: "center",
         gap: 6,
         padding: "8px 13px",
-        borderRadius: 8,
+        borderRadius: 9,
         border,
         background: bg,
         color,
@@ -123,6 +120,7 @@ export function ActionBtn({
         fontWeight: 500,
         cursor: disabled ? "default" : "pointer",
         opacity: disabled ? 0.6 : 1,
+        boxShadow: primary ? `0 4px 14px ${C.shadow}` : "none",
       }}
     >
       {icon}

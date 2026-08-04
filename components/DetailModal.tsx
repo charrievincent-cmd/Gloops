@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Minus, Pencil, Trash2, Wine, X } from "lucide-react";
+import { Check, Minus, Pencil, RotateCcw, Trash2, Wine, X } from "lucide-react";
 import { C, FONTS, GAMMES, TYPE_COLOR, WINE_TYPES } from "@/lib/design-tokens";
 import type { BottleLot, BottleFormFields } from "@/lib/types";
 import { ActionBtn, Field, GammeBadge, Select, TextArea, TextInput } from "@/components/ui";
@@ -16,31 +16,48 @@ const DETAIL_FIELDS: [keyof BottleFormFields, string][] = [
   ["commentaire", "Commentaire"],
 ];
 
+function formatConsumedDate(iso: string) {
+  return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
+}
+
 export function DetailModal({
   lot,
+  mode = "cave",
   onClose,
   onSave,
   onDeleteLot,
   onConsumeOne,
+  onRestore,
 }: {
   lot: BottleLot;
+  /** "cave" (par défaut) : modifier/consommer/supprimer. "history" : remettre en cave ou supprimer définitivement. */
+  mode?: "cave" | "history";
   onClose: () => void;
-  onSave: (lotId: string, fields: Partial<BottleFormFields>) => Promise<void>;
+  onSave?: (lotId: string, fields: Partial<BottleFormFields>) => Promise<void>;
   onDeleteLot: (lot: BottleLot) => Promise<void>;
-  onConsumeOne: (lot: BottleLot) => Promise<void>;
+  onConsumeOne?: (lot: BottleLot) => Promise<void>;
+  onRestore?: (lot: BottleLot) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<BottleFormFields>>(lot);
   const [saving, setSaving] = useState(false);
+  const [restoring, setRestoring] = useState(false);
 
   const set = <K extends keyof BottleFormFields>(k: K, v: BottleFormFields[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
 
   const save = async () => {
+    if (!onSave) return;
     setSaving(true);
     await onSave(lot.lot_id, form);
     setSaving(false);
     setEditing(false);
+  };
+
+  const restore = async () => {
+    if (!onRestore) return;
+    setRestoring(true);
+    await onRestore(lot);
   };
 
   return (
@@ -124,6 +141,11 @@ export function DetailModal({
                 {lot.annee || "Année inconnue"} · {lot.type || "type inconnu"}{" "}
                 {lot.quantite > 1 ? `· ${lot.quantite} bouteilles` : ""}
               </div>
+              {mode === "history" && lot.consumed_at && (
+                <div style={{ fontFamily: FONTS.mono, color: C.copper, fontSize: 13, marginTop: 4 }}>
+                  Consommée le {formatConsumedDate(lot.consumed_at)}
+                </div>
+              )}
 
               <div style={{ marginTop: 16, borderTop: `1px solid ${C.hairline}` }}>
                 {DETAIL_FIELDS.map(([k, label]) => (
@@ -149,16 +171,37 @@ export function DetailModal({
               </div>
 
               <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
-                <ActionBtn onClick={() => setEditing(true)} icon={<Pencil size={14} />} label="Modifier" />
-                {lot.quantite > 1 && (
-                  <ActionBtn onClick={() => onConsumeOne(lot)} icon={<Minus size={14} />} label="J'en ai bu une" />
+                {mode === "cave" ? (
+                  <>
+                    <ActionBtn onClick={() => setEditing(true)} icon={<Pencil size={14} />} label="Modifier" />
+                    <ActionBtn
+                      onClick={() => onConsumeOne?.(lot)}
+                      icon={<Minus size={14} />}
+                      label={lot.quantite > 1 ? "J'en ai bu une" : "Marquer comme bue"}
+                    />
+                    <ActionBtn
+                      danger
+                      onClick={() => onDeleteLot(lot)}
+                      icon={<Trash2 size={14} />}
+                      label={lot.quantite > 1 ? "Supprimer le lot" : "Supprimer"}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <ActionBtn
+                      onClick={restore}
+                      disabled={restoring}
+                      icon={<RotateCcw size={14} />}
+                      label={restoring ? "Remise en cave…" : "Remettre en cave"}
+                    />
+                    <ActionBtn
+                      danger
+                      onClick={() => onDeleteLot(lot)}
+                      icon={<Trash2 size={14} />}
+                      label="Supprimer définitivement"
+                    />
+                  </>
                 )}
-                <ActionBtn
-                  danger
-                  onClick={() => onDeleteLot(lot)}
-                  icon={<Trash2 size={14} />}
-                  label={lot.quantite > 1 ? "Supprimer le lot" : "Supprimer"}
-                />
               </div>
             </>
           ) : (

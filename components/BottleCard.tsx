@@ -4,21 +4,33 @@ import { Wine } from "lucide-react";
 import { C, FONTS, TYPE_COLOR } from "@/lib/design-tokens";
 import type { BottleLot } from "@/lib/types";
 
-export function BottleCard({ lot, onClick }: { lot: BottleLot; onClick: () => void }) {
+export function BottleCard({
+  lot,
+  onClick,
+  subtitle,
+  hideQuantityBadge,
+}: {
+  lot: BottleLot;
+  onClick: () => void;
+  /** Remplace l'année affichée en pied de vignette (ex. date de consommation dans l'historique). */
+  subtitle?: string;
+  hideQuantityBadge?: boolean;
+}) {
   const stripe = TYPE_COLOR[lot.type ?? ""] || C.hairline;
   return (
     <button
       onClick={onClick}
+      className="gloops-card"
       style={{
         textAlign: "left",
         background: C.surface,
         border: `1px solid ${lot.gamme === "excellent" ? C.gold : C.hairline}`,
-        borderRadius: 10,
+        borderRadius: 12,
         overflow: "hidden",
         cursor: "pointer",
         padding: 0,
         position: "relative",
-        boxShadow: lot.gamme === "excellent" ? `0 0 0 1px ${C.gold}55` : "none",
+        boxShadow: lot.gamme === "excellent" ? `0 0 0 1px ${C.gold}55, 0 2px 10px ${C.shadow}` : `0 2px 10px ${C.shadow}`,
       }}
     >
       <div style={{ height: 3, background: stripe }} />
@@ -39,7 +51,7 @@ export function BottleCard({ lot, onClick }: { lot: BottleLot; onClick: () => vo
         ) : (
           <Wine size={28} color={C.parchmentFaint} strokeWidth={1.2} />
         )}
-        {lot.quantite > 1 && (
+        {!hideQuantityBadge && lot.quantite > 1 && (
           <span
             style={{
               position: "absolute",
@@ -74,7 +86,7 @@ export function BottleCard({ lot, onClick }: { lot: BottleLot; onClick: () => vo
           {lot.nom || "Vin sans nom"}
         </div>
         <div style={{ fontFamily: FONTS.mono, fontSize: 12, color: C.parchmentMuted, marginTop: 3 }}>
-          {lot.annee || "—"}
+          {subtitle ?? lot.annee ?? "—"}
         </div>
       </div>
     </button>

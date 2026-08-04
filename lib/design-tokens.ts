@@ -1,22 +1,29 @@
 import type { CSSProperties } from "react";
 
 export const C = {
-  bg: "#15110D",
-  bgAlt: "#1C1712",
-  surface: "#241D16",
-  surfaceRaised: "#2C2318",
-  hairline: "#3A2E20",
-  parchment: "#EDE3CE",
-  parchmentMuted: "#A99A80",
-  parchmentFaint: "#6E6350",
-  bordeaux: "#7A2036",
-  bordeauxBright: "#9C3049",
-  gold: "#C9A227",
-  goldSoft: "#E4CC7A",
-  blanc: "#C9B458",
-  rose: "#D98A9B",
-  danger: "#B23A3A",
+  bg: "var(--bg)",
+  bgAlt: "var(--bg-alt)",
+  surface: "var(--surface)",
+  surfaceRaised: "var(--surface-raised)",
+  hairline: "var(--hairline)",
+  parchment: "var(--ink)",
+  parchmentMuted: "var(--ink-muted)",
+  parchmentFaint: "var(--ink-faint)",
+  bordeaux: "var(--maroon)",
+  bordeauxBright: "var(--maroon-bright)",
+  copper: "var(--copper)",
+  gold: "var(--gold)",
+  goldSoft: "var(--gold-soft)",
+  blanc: "var(--blanc-accent)",
+  rose: "var(--rose-accent)",
+  danger: "var(--danger)",
+  shadow: "var(--shadow)",
+  overlaySoft: "var(--overlay-soft)",
+  headerBg: "var(--header-bg)",
 } as const;
+
+/** Dégradé de marque (glyphe du logo) : boutons primaires, états actifs, badge. */
+export const BRAND_GRADIENT = `linear-gradient(135deg, ${C.bordeaux}, ${C.copper})`;
 
 export const FONTS = {
   display: "'Fraunces', 'Georgia', serif",

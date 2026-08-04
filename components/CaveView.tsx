@@ -16,7 +16,11 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
   const supabase = createClient();
 
   const refetch = async () => {
-    const { data } = await supabase.from("bottles").select("*").order("created_at", { ascending: false });
+    const { data } = await supabase
+      .from("bottles")
+      .select("*")
+      .is("consumed_at", null)
+      .order("created_at", { ascending: false });
     setBottles((data as Bottle[]) ?? []);
   };
 
@@ -64,8 +68,8 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
   };
 
   const consumeOne = async (lot: BottleLot) => {
-    const idToRemove = lot.bottle_ids[0];
-    await supabase.from("bottles").delete().eq("id", idToRemove);
+    const idToConsume = lot.bottle_ids[0];
+    await supabase.from("bottles").update({ consumed_at: new Date().toISOString() }).eq("id", idToConsume);
     await refetch();
   };
 
@@ -73,7 +77,7 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
     <div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 8 }}>
         <div>
-          <h1 style={{ fontFamily: FONTS.display, fontSize: 26, color: C.parchment, margin: 0 }}>Ma Cave</h1>
+          <h1 style={{ fontFamily: FONTS.display, fontSize: 26, color: C.parchment, margin: 0 }}>Ma cave</h1>
           <p style={{ color: C.parchmentMuted, fontSize: 13, margin: "4px 0 0" }}>
             {totalBottles} bouteille{totalBottles > 1 ? "s" : ""} · capacité 90
           </p>

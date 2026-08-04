@@ -16,7 +16,8 @@ create table if not exists public.bottles (
   commentaire text,
   photo_url text,
   created_by uuid references auth.users (id),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  consumed_at timestamptz
 );
 
 create index if not exists bottles_lot_id_idx on public.bottles (lot_id);
@@ -48,3 +49,10 @@ create policy "authenticated upload bottle photos" on storage.objects
 
 create policy "authenticated delete bottle photos" on storage.objects
   for delete to authenticated using (bucket_id = 'bottle-photos');
+
+-- ---------------------------------------------------------------------
+-- Migration (projet déjà provisionné avant l'ajout de l'historique) :
+-- à exécuter une seule fois si la table public.bottles existe déjà
+-- sans la colonne consumed_at.
+-- ---------------------------------------------------------------------
+alter table public.bottles add column if not exists consumed_at timestamptz;

@@ -1,4 +1,4 @@
-# Gloops — Ma Cave
+# Gloops 2.0
 
 Application de gestion de cave à vin (cave électrique ~90 bouteilles) : visualisation avec filtres, ajout de bouteille par photo avec reconnaissance automatique par IA, chat sommelier, authentification multi-utilisateurs.
 

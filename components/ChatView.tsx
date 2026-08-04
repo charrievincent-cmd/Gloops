@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Loader2, Send } from "lucide-react";
-import { C, FONTS, inputStyle } from "@/lib/design-tokens";
+import { BRAND_GRADIENT, C, FONTS, inputStyle } from "@/lib/design-tokens";
 
 interface Message {
   role: "user" | "assistant";
@@ -56,9 +56,9 @@ export function ChatView() {
             style={{
               alignSelf: m.role === "user" ? "flex-end" : "flex-start",
               maxWidth: "82%",
-              background: m.role === "user" ? `linear-gradient(160deg, ${C.bordeauxBright}, ${C.bordeaux})` : C.surface,
+              background: m.role === "user" ? BRAND_GRADIENT : C.surface,
               border: m.role === "user" ? "none" : `1px solid ${C.hairline}`,
-              color: C.parchment,
+              color: m.role === "user" ? "#FFF6EA" : C.parchment,
               padding: "9px 13px",
               borderRadius: 12,
               borderBottomRightRadius: m.role === "user" ? 3 : 12,
@@ -66,6 +66,7 @@ export function ChatView() {
               fontSize: 14,
               lineHeight: 1.5,
               whiteSpace: "pre-wrap",
+              boxShadow: m.role === "user" ? `0 4px 14px ${C.shadow}` : "none",
             }}
           >
             {m.content}
@@ -94,17 +95,19 @@ export function ChatView() {
         <button
           onClick={send}
           disabled={busy}
+          className="gloops-btn"
           style={{
             width: 42,
-            borderRadius: 8,
+            borderRadius: 9,
             border: "none",
-            background: `linear-gradient(160deg, ${C.bordeauxBright}, ${C.bordeaux})`,
-            color: C.parchment,
+            background: BRAND_GRADIENT,
+            color: "#FFF6EA",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
             opacity: busy ? 0.6 : 1,
+            boxShadow: `0 4px 14px ${C.shadow}`,
           }}
         >
           <Send size={16} />
