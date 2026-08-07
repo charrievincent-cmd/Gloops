@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Grid3x3, Search, Wine } from "lucide-react";
 import { C, FONTS, GAMMES, GAMME_LABEL, WINE_TYPES, inputStyle } from "@/lib/design-tokens";
 import { groupIntoLots, type Bottle, type BottleFormFields, type BottleLot } from "@/lib/types";
@@ -11,9 +12,18 @@ import { DetailModal } from "@/components/DetailModal";
 export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
   const [bottles, setBottles] = useState(initialBottles);
   const [filters, setFilters] = useState({ type: "", gamme: "", etagere: "", search: "" });
-  const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [selectedLotId, setSelectedLotId] = useState<string | null>(() => searchParams.get("open"));
 
   const supabase = createClient();
+
+  useEffect(() => {
+    if (searchParams.get("open")) {
+      router.replace("/cave");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const refetch = async () => {
     const { data } = await supabase

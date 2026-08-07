@@ -50,7 +50,7 @@ export function NavHeader() {
           Gloops <span style={{ color: C.copper }}>2.0</span>
         </span>
       </div>
-      <nav style={{ display: "flex", gap: 4, background: C.surface, padding: 4, borderRadius: 10, border: `1px solid ${C.hairline}`, overflowX: "auto" }}>
+      <nav className="gloops-desktop-nav" style={{ gap: 4, background: C.surface, padding: 4, borderRadius: 10, border: `1px solid ${C.hairline}` }}>
         {NAV.map((n) => {
           const active = pathname === n.href;
           return (

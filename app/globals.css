@@ -147,6 +147,75 @@ textarea:focus-visible {
   outline-offset: 2px;
 }
 
+/* Navigation : barre du haut sur desktop, barre basse fixe + FAB sur mobile. */
+.gloops-desktop-nav {
+  display: none;
+}
+
+.gloops-mobile-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+  background: var(--header-bg);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--hairline);
+  box-shadow: 0 -2px 16px var(--shadow);
+}
+
+.gloops-fab {
+  position: fixed;
+  right: 18px;
+  bottom: calc(70px + env(safe-area-inset-bottom));
+  z-index: 21;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--maroon), var(--copper));
+  color: #fff6ea;
+  border: none;
+  box-shadow: 0 8px 20px var(--shadow);
+  cursor: pointer;
+}
+
+.gloops-main {
+  padding-bottom: 60px;
+}
+
+.gloops-chat-shell {
+  max-height: calc(100vh - 160px);
+}
+
+@media (min-width: 681px) {
+  .gloops-desktop-nav {
+    display: flex;
+  }
+  .gloops-mobile-nav,
+  .gloops-fab {
+    display: none;
+  }
+  .gloops-main {
+    padding-bottom: 24px;
+  }
+}
+
+@media (max-width: 680px) {
+  .gloops-chat-shell {
+    max-height: calc(100vh - 220px);
+  }
+  .gloops-main {
+    padding-bottom: 110px;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * {
     animation-duration: 0.01ms !important;
