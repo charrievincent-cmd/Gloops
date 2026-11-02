@@ -10,7 +10,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div style={{ minHeight: "100vh", background: C.bg }}>
       <NavHeader />
-      <main className="gloops-main" style={{ maxWidth: 1000, margin: "0 auto", padding: "24px 20px 0" }}>
+      {/* Pas de padding-bottom ici : il est géré par .gloops-main (globals.css) pour
+          laisser la place à la barre d'onglets mobile. */}
+      <main className="gloops-main" style={{ maxWidth: 1000, margin: "0 auto", paddingTop: 24, paddingLeft: 20, paddingRight: 20 }}>
         {children}
       </main>
       <MobileTabBar />

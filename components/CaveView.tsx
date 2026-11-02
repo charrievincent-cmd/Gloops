@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useLayoutEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Grid3x3, Search, Wine } from "lucide-react";
 import { C, FONTS, GAMMES, GAMME_LABEL, WINE_TYPES, inputStyle } from "@/lib/design-tokens";
 import { groupIntoLots, type Bottle, type BottleFormFields, type BottleLot } from "@/lib/types";
@@ -12,15 +12,17 @@ import { DetailModal } from "@/components/DetailModal";
 export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
   const [bottles, setBottles] = useState(initialBottles);
   const [filters, setFilters] = useState({ type: "", gamme: "", etagere: "", search: "" });
-  const router = useRouter();
   const searchParams = useSearchParams();
   const [selectedLotId, setSelectedLotId] = useState<string | null>(() => searchParams.get("open"));
 
   const supabase = createClient();
 
-  useEffect(() => {
+  // Lien « ?open=<lot> » (depuis l'assistant) : on nettoie l'URL avant que la fiche
+  // n'ajoute son entrée d'historique (useLayoutEffect passe avant useEffect), pour
+  // que la touche retour ferme la fiche et reste sur /cave.
+  useLayoutEffect(() => {
     if (searchParams.get("open")) {
-      router.replace("/cave");
+      window.history.replaceState(window.history.state, "", "/cave");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

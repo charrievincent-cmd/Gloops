@@ -5,6 +5,7 @@ import { Check, Minus, Pencil, RotateCcw, Trash2, Wine, X } from "lucide-react";
 import { C, FONTS, GAMMES, TYPE_COLOR, WINE_TYPES } from "@/lib/design-tokens";
 import type { BottleLot, BottleFormFields } from "@/lib/types";
 import { ActionBtn, Field, GammeBadge, Select, TextArea, TextInput } from "@/components/ui";
+import { useCloseOnBack } from "@/lib/useCloseOnBack";
 
 const DETAIL_FIELDS: [keyof BottleFormFields, string][] = [
   ["igp", "IGP"],
@@ -42,6 +43,7 @@ export function DetailModal({
   const [form, setForm] = useState<Partial<BottleFormFields>>(lot);
   const [saving, setSaving] = useState(false);
   const [restoring, setRestoring] = useState(false);
+  const close = useCloseOnBack(onClose);
 
   const set = <K extends keyof BottleFormFields>(k: K, v: BottleFormFields[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -72,7 +74,7 @@ export function DetailModal({
         zIndex: 50,
         padding: 16,
       }}
-      onClick={onClose}
+      onClick={close}
     >
       <div
         onClick={(e) => e.stopPropagation()}
@@ -98,7 +100,8 @@ export function DetailModal({
             )}
           </div>
           <button
-            onClick={onClose}
+            onClick={close}
+            aria-label="Fermer"
             style={{
               position: "absolute",
               top: 10,
