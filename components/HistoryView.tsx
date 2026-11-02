@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, History as HistoryIcon } from "lucide-react";
 import { C, FONTS } from "@/lib/design-tokens";
 import { toSingleLot, type Bottle, type BottleLot } from "@/lib/types";
@@ -32,6 +32,24 @@ export function HistoryView({ initialBottles }: { initialBottles: Bottle[] }) {
       .order("consumed_at", { ascending: false });
     setBottles((data as Bottle[]) ?? []);
   };
+
+  // La page peut venir du cache du téléphone (navigation instantanée) :
+  // on recharge les données en arrière-plan pour qu'elles restent à jour.
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("bottles")
+      .select("*")
+      .not("consumed_at", "is", null)
+      .order("consumed_at", { ascending: false })
+      .then(({ data }) => {
+        if (active && data) setBottles(data as Bottle[]);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const groups = new Map<string, Bottle[]>();
   bottles.forEach((b) => {
