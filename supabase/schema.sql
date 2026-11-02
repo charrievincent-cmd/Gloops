@@ -13,6 +13,7 @@ create table if not exists public.bottles (
   gamme text check (gamme in ('basique', 'bon', 'excellent')),
   etagere text,
   conservation text,
+  accord_mets_vin text,
   commentaire text,
   photo_url text,
   created_by uuid references auth.users (id),
@@ -56,3 +57,10 @@ create policy "authenticated delete bottle photos" on storage.objects
 -- sans la colonne consumed_at.
 -- ---------------------------------------------------------------------
 alter table public.bottles add column if not exists consumed_at timestamptz;
+
+-- ---------------------------------------------------------------------
+-- Migration (projet déjà provisionné avant l'ajout de l'accord mets et vin) :
+-- à exécuter une seule fois si la table public.bottles existe déjà
+-- sans la colonne accord_mets_vin.
+-- ---------------------------------------------------------------------
+alter table public.bottles add column if not exists accord_mets_vin text;

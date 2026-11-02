@@ -14,6 +14,7 @@ const DETAIL_FIELDS: [keyof BottleFormFields, string][] = [
   ["cepages", "Cépages"],
   ["etagere", "Étagère"],
   ["conservation", "Infos de conservation"],
+  ["accord_mets_vin", "Accord mets et vin"],
   ["commentaire", "Commentaire"],
 ];
 
@@ -259,6 +260,9 @@ export function DetailModal({
               </div>
               <Field label="Infos de conservation">
                 <TextInput value={form.conservation ?? ""} onChange={(e) => set("conservation", e.target.value)} />
+              </Field>
+              <Field label="Accord mets et vin">
+                <TextInput value={form.accord_mets_vin ?? ""} onChange={(e) => set("accord_mets_vin", e.target.value)} />
               </Field>
               <Field label="Commentaire">
                 <TextArea value={form.commentaire ?? ""} onChange={(e) => set("commentaire", e.target.value)} />
