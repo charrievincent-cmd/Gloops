@@ -1,6 +1,6 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Grid3x3, Search, Wine } from "lucide-react";
 import { C, FONTS, GAMMES, GAMME_LABEL, WINE_TYPES, inputStyle } from "@/lib/design-tokens";
@@ -35,6 +35,24 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
       .order("created_at", { ascending: false });
     setBottles((data as Bottle[]) ?? []);
   };
+
+  // La page peut venir du cache du téléphone (navigation instantanée) :
+  // on recharge les données en arrière-plan pour qu'elles restent à jour.
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("bottles")
+      .select("*")
+      .is("consumed_at", null)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        if (active && data) setBottles(data as Bottle[]);
+      });
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const lots = useMemo(() => groupIntoLots(bottles), [bottles]);
   const etageres = useMemo(
