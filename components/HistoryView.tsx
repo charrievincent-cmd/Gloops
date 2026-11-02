@@ -55,6 +55,12 @@ export function HistoryView({ initialBottles }: { initialBottles: Bottle[] }) {
     await refetch();
   };
 
+  const changePhoto = async (lot: BottleLot, photoUrl: string) => {
+    const { error } = await supabase.from("bottles").update({ photo_url: photoUrl }).eq("lot_id", lot.lot_id);
+    if (error) throw error;
+    await refetch();
+  };
+
   const deleteEntry = async (lot: BottleLot) => {
     await supabase.from("bottles").delete().eq("id", lot.bottle_ids[0]);
     setSelectedId(null);
@@ -113,6 +119,7 @@ export function HistoryView({ initialBottles }: { initialBottles: Bottle[] }) {
           mode="history"
           onClose={() => setSelectedId(null)}
           onDeleteLot={deleteEntry}
+          onPhotoChange={changePhoto}
           onRestore={restore}
         />
       )}

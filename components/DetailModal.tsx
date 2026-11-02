@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { Check, Minus, Pencil, RotateCcw, Trash2, Wine, X } from "lucide-react";
+import { useRef, useState } from "react";
+import { Camera, Check, Loader2, Minus, Pencil, RotateCcw, Trash2, Wine, X } from "lucide-react";
 import { C, FONTS, GAMMES, TYPE_COLOR, WINE_TYPES } from "@/lib/design-tokens";
 import type { BottleLot, BottleFormFields } from "@/lib/types";
 import { ActionBtn, Field, GammeBadge, Select, TextArea, TextInput } from "@/components/ui";
 import { useCloseOnBack } from "@/lib/useCloseOnBack";
+import { dataUrlToBlob, resizeImage } from "@/lib/image";
+import { createClient } from "@/lib/supabase/client";
 
 const DETAIL_FIELDS: [keyof BottleFormFields, string][] = [
   ["igp", "IGP"],
@@ -17,6 +19,30 @@ const DETAIL_FIELDS: [keyof BottleFormFields, string][] = [
   ["accord_mets_vin", "Accord mets et vin"],
   ["commentaire", "Commentaire"],
 ];
+
+/** Champs réellement modifiables : on n'envoie que ceux-là à la base. */
+const EDITABLE_FIELDS = [
+  "nom",
+  "annee",
+  "type",
+  "igp",
+  "aop",
+  "vignoble",
+  "cepages",
+  "gamme",
+  "etagere",
+  "conservation",
+  "accord_mets_vin",
+  "commentaire",
+] as const satisfies readonly (keyof BottleFormFields)[];
+
+function pickEditable(form: Partial<BottleFormFields>): Partial<BottleFormFields> {
+  const out: Partial<BottleFormFields> = {};
+  for (const k of EDITABLE_FIELDS) {
+    if (k in form) (out as Record<string, unknown>)[k] = form[k];
+  }
+  return out;
+}
 
 function formatConsumedDate(iso: string) {
   return new Date(iso).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" });
@@ -30,6 +56,7 @@ export function DetailModal({
   onDeleteLot,
   onConsumeOne,
   onRestore,
+  onPhotoChange,
 }: {
   lot: BottleLot;
   /** "cave" (par défaut) : modifier/consommer/supprimer. "history" : remettre en cave ou supprimer définitivement. */
@@ -39,12 +66,40 @@ export function DetailModal({
   onDeleteLot: (lot: BottleLot) => Promise<void>;
   onConsumeOne?: (lot: BottleLot) => Promise<void>;
   onRestore?: (lot: BottleLot) => Promise<void>;
+  /** Enregistre la nouvelle photo (URL publique) pour tout le lot. */
+  onPhotoChange?: (lot: BottleLot, photoUrl: string) => Promise<void>;
 }) {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<BottleFormFields>>(lot);
   const [saving, setSaving] = useState(false);
   const [restoring, setRestoring] = useState(false);
   const close = useCloseOnBack(onClose);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [photoUrl, setPhotoUrl] = useState(lot.photo_url);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+
+  const handlePhoto = async (file: File | undefined) => {
+    if (!file || !onPhotoChange) return;
+    setUploadingPhoto(true);
+    setPhotoError("");
+    try {
+      const dataUrl = await resizeImage(file, 1000, 0.8);
+      const supabase = createClient();
+      const path = `${crypto.randomUUID()}.jpg`;
+      const { error } = await supabase.storage
+        .from("bottle-photos")
+        .upload(path, dataUrlToBlob(dataUrl), { contentType: "image/jpeg" });
+      if (error) throw error;
+      const url = supabase.storage.from("bottle-photos").getPublicUrl(path).data.publicUrl;
+      await onPhotoChange(lot, url);
+      setPhotoUrl(url);
+    } catch {
+      setPhotoError("Impossible d'enregistrer la photo, réessaie.");
+    }
+    setUploadingPhoto(false);
+    if (fileRef.current) fileRef.current.value = "";
+  };
 
   const set = <K extends keyof BottleFormFields>(k: K, v: BottleFormFields[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
@@ -52,7 +107,7 @@ export function DetailModal({
   const save = async () => {
     if (!onSave) return;
     setSaving(true);
-    await onSave(lot.lot_id, form);
+    await onSave(lot.lot_id, pickEditable(form));
     setSaving(false);
     setEditing(false);
   };
@@ -91,9 +146,9 @@ export function DetailModal({
       >
         <div style={{ position: "relative" }}>
           <div style={{ width: "100%", aspectRatio: "4/3", background: C.bgAlt, overflow: "hidden" }}>
-            {lot.photo_url ? (
+            {photoUrl ? (
               // eslint-disable-next-line @next/next/no-img-element
-              <img src={lot.photo_url} alt={lot.nom ?? ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              <img src={photoUrl} alt={lot.nom ?? ""} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
             ) : (
               <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Wine size={40} color={C.parchmentFaint} strokeWidth={1.2} />
@@ -120,6 +175,45 @@ export function DetailModal({
           >
             <X size={16} color={C.parchment} />
           </button>
+          {onPhotoChange && (
+            <>
+              <input
+                ref={fileRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                style={{ display: "none" }}
+                onChange={(e) => handlePhoto(e.target.files?.[0])}
+              />
+              <button
+                onClick={() => fileRef.current?.click()}
+                disabled={uploadingPhoto}
+                style={{
+                  position: "absolute",
+                  left: 10,
+                  bottom: 14,
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 11px",
+                  background: "rgba(21,17,13,0.75)",
+                  color: C.parchment,
+                  border: "none",
+                  borderRadius: 16,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  cursor: uploadingPhoto ? "default" : "pointer",
+                }}
+              >
+                {uploadingPhoto ? (
+                  <Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} />
+                ) : (
+                  <Camera size={14} />
+                )}
+                {uploadingPhoto ? "Envoi…" : photoUrl ? "Changer la photo" : "Ajouter une photo"}
+              </button>
+            </>
+          )}
           <div
             style={{
               position: "absolute",
@@ -133,6 +227,7 @@ export function DetailModal({
         </div>
 
         <div style={{ padding: 20 }}>
+          {photoError && <p style={{ color: C.danger, fontSize: 13, margin: "0 0 12px" }}>{photoError}</p>}
           {!editing ? (
             <>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 10 }}>

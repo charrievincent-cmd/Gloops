@@ -73,6 +73,12 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
     await refetch();
   };
 
+  const changePhoto = async (lot: BottleLot, photoUrl: string) => {
+    const { error } = await supabase.from("bottles").update({ photo_url: photoUrl }).eq("lot_id", lot.lot_id);
+    if (error) throw error;
+    await refetch();
+  };
+
   const deleteLot = async (lot: BottleLot) => {
     await supabase.from("bottles").delete().eq("lot_id", lot.lot_id);
     setSelectedLotId(null);
@@ -181,6 +187,7 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
           onClose={() => setSelectedLotId(null)}
           onSave={saveLot}
           onDeleteLot={deleteLot}
+          onPhotoChange={changePhoto}
           onConsumeOne={consumeOne}
         />
       )}
