@@ -9,10 +9,10 @@ Je veux une application de gestion de ma cave à vin, appelée **Gloops 2.0**. C
 ### Fonctionnalités
 
 **1. Visualisation de la cave**
-Affichage du contenu par vignettes (photo, nom, année), groupées par étagère. Cliquer sur une vignette ouvre le détail complet : nom, année, type (rouge/blanc/rosé), IGP, AOP/AOC, vignoble, cépages, gamme (basique/bon/excellent), étagère, infos de conservation, commentaire. La vue propose des filtres (recherche texte libre + type + gamme + étagère). Seules les bouteilles **disponibles** (non consommées) apparaissent ici.
+Affichage du contenu par vignettes (photo, nom, année), groupées par étagère. Cliquer sur une vignette ouvre le détail complet : nom, année, type (rouge/blanc/rosé), IGP, AOP/AOC, vignoble, cépages, gamme (basique/bon/excellent), étagère, infos de conservation, accord mets et vin, commentaire. La vue propose des filtres (recherche texte libre + type + gamme + étagère). Seules les bouteilles **disponibles** (non consommées) apparaissent ici.
 
 **2. Ajout d'une bouteille (ou d'un lot de bouteilles identiques)**
-Bouton « + » → prise de photo de l'étiquette → la photo est envoyée à un modèle de vision IA qui pré-remplit automatiquement : nom, année, type, IGP, AOP/AOC, vignoble, cépages, gamme, infos de conservation. Les champs étagère et commentaire restent toujours à saisir manuellement, ainsi que tout champ que l'IA n'a pas réussi à déterminer. Un champ quantité permet d'enregistrer plusieurs bouteilles identiques en une fois.
+Bouton « + » → prise de photo de l'étiquette → la photo est envoyée à un modèle de vision IA qui pré-remplit automatiquement : nom, année, type, IGP, AOP/AOC, vignoble, cépages, gamme, infos de conservation, accord mets et vin. Les champs étagère et commentaire restent toujours à saisir manuellement, ainsi que tout champ que l'IA n'a pas réussi à déterminer. Un champ quantité permet d'enregistrer plusieurs bouteilles identiques en une fois.
 
 **3. Consommation d'une bouteille + historique**
 Depuis le détail d'une bouteille, un bouton permet de la marquer comme consommée (« J'en ai bu une » si le lot en compte plusieurs, « Marquer comme bue » s'il n'en reste qu'une). La bouteille disparaît alors de la cave disponible mais n'est **jamais supprimée** : elle passe dans un onglet **Historique**, qui liste les bouteilles bues groupées par mois, avec leur date de consommation. Depuis l'historique, deux actions : « Remettre en cave » (annule la consommation, utile en cas de clic accidentel) ou « Supprimer définitivement » (vraie suppression, pour corriger une erreur de saisie). Le bouton « Supprimer » présent dans la cave reste, lui, une suppression définitive immédiate — fonctionnellement distinct de la consommation.
@@ -79,6 +79,7 @@ create table public.bottles (
   gamme text check (gamme in ('basique', 'bon', 'excellent')),
   etagere text,
   conservation text,
+  accord_mets_vin text,
   commentaire text,
   photo_url text,
   created_by uuid references auth.users (id),
@@ -139,7 +140,7 @@ logo.jpg                      # logo source (glyphe + wordmark), à la racine du
 - Les pages sous `(app)` (cave, add, chat, history) doivent être en rendu dynamique forcé (`export const dynamic = "force-dynamic"`) car elles dépendent de la session utilisateur — jamais de contenu statique partagé entre utilisateurs.
 - Le fichier de garde d'authentification s'appelle `proxy.ts` à la racine (export nommé `proxy`, pas `middleware`) — convention Next.js 16 qui remplace `middleware.ts`. Il redirige les visiteurs non authentifiés vers `/login`, et les utilisateurs authentifiés visitant `/login` vers `/cave`. Les routes `/api/*` sont exclues de cette redirection : elles vérifient elles-mêmes l'authentification et renvoient un 401 JSON.
 - Les erreurs de connexion affichent le message d'erreur réel renvoyé par Supabase (`signInError.message`), pas un message générique, pour faciliter le diagnostic.
-- Prompt d'analyse photo : demander à Claude de répondre uniquement en JSON avec les clés `nom, annee, type, igp, aop, vignoble, cepages, gamme, conservation`, avec `null` pour tout champ non déterminable.
+- Prompt d'analyse photo : demander à Claude de répondre uniquement en JSON avec les clés `nom, annee, type, igp, aop, vignoble, cepages, gamme, conservation, accord_mets_vin`, avec `null` pour tout champ non déterminable.
 - Prompt du chat sommelier : fournir tout l'inventaire disponible (`consumed_at is null`, regroupé par lot avec quantité et `lot_id`) en JSON dans le system prompt, consigne stricte de ne jamais citer un vin absent de la liste.
 - Le chat sommelier utilise un outil Claude (`cite_wines`, tool use natif de l'API Anthropic) pour que le modèle indique explicitement les `lot_id` des vins qu'il recommande, en plus de sa réponse en texte libre. La route `/api/chat` renvoie `{ answer, referencedBottles }` ; le client affiche ces vins comme des puces cliquables sous le message, qui naviguent vers `/cave?open=<lot_id>` — la vue Cave lit ce paramètre au montage (état initial du `useState`, pas un effet qui déclenche un re-render) pour ouvrir directement la fiche détail correspondante, puis nettoie l'URL.
 - L'icône d'app est recadrée depuis `logo.jpg` (glyphe seul, sans le mot-clé texte) puis posée sur un fond carré de la couleur de fond du thème clair (`#F5F1E8`), pour un rendu propre en petite taille.

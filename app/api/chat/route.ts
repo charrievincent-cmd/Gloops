@@ -33,6 +33,7 @@ export async function POST(request: Request) {
     gamme: l.gamme,
     etagere: l.etagere,
     conservation: l.conservation,
+    accord_mets_vin: l.accord_mets_vin,
     cepages: l.cepages,
     vignoble: l.vignoble,
     aop: l.aop,

@@ -20,6 +20,7 @@ const EMPTY_FORM: BottleFormFields & { quantite: number } = {
   gamme: null,
   etagere: "",
   conservation: "",
+  accord_mets_vin: "",
   commentaire: "",
   photo_url: null,
   quantite: 1,
@@ -35,6 +36,7 @@ interface AnalyzeResult {
   cepages?: string | null;
   gamme?: string | null;
   conservation?: string | null;
+  accord_mets_vin?: string | null;
 }
 
 export function AddView() {
@@ -86,6 +88,7 @@ export function AddView() {
         cepages: result.cepages || f.cepages,
         gamme: (GAMMES as readonly string[]).includes(result.gamme ?? "") ? (result.gamme as Gamme) : f.gamme,
         conservation: result.conservation || f.conservation,
+        accord_mets_vin: result.accord_mets_vin || f.accord_mets_vin,
       }));
     } catch {
       setError("La reconnaissance automatique a échoué. Complète les champs manuellement.");
@@ -244,6 +247,9 @@ export function AddView() {
           </div>
           <Field label="Infos de conservation">
             <TextInput value={form.conservation ?? ""} onChange={(e) => set("conservation", e.target.value)} placeholder="à boire avant 2028" />
+          </Field>
+          <Field label="Accord mets et vin">
+            <TextInput value={form.accord_mets_vin ?? ""} onChange={(e) => set("accord_mets_vin", e.target.value)} placeholder="ex. raclette, viandes grillées" />
           </Field>
           <Field label="Commentaire">
             <TextArea value={form.commentaire ?? ""} onChange={(e) => set("commentaire", e.target.value)} placeholder="Tes notes personnelles…" />

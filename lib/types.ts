@@ -14,6 +14,7 @@ export interface Bottle {
   gamme: Gamme | null;
   etagere: string | null;
   conservation: string | null;
+  accord_mets_vin: string | null;
   commentaire: string | null;
   photo_url: string | null;
   created_by: string | null;
@@ -41,6 +42,7 @@ export interface BottleLot {
   gamme: Gamme | null;
   etagere: string | null;
   conservation: string | null;
+  accord_mets_vin: string | null;
   commentaire: string | null;
   photo_url: string | null;
   created_at: string;
@@ -63,6 +65,7 @@ export function toSingleLot(bottle: Bottle): BottleLot {
     gamme: bottle.gamme,
     etagere: bottle.etagere,
     conservation: bottle.conservation,
+    accord_mets_vin: bottle.accord_mets_vin,
     commentaire: bottle.commentaire,
     photo_url: bottle.photo_url,
     created_at: bottle.created_at,
@@ -93,6 +96,7 @@ export function groupIntoLots(bottles: Bottle[]): BottleLot[] {
       gamme: first.gamme,
       etagere: first.etagere,
       conservation: first.conservation,
+      accord_mets_vin: first.accord_mets_vin,
       commentaire: first.commentaire,
       photo_url: first.photo_url,
       created_at: first.created_at,
