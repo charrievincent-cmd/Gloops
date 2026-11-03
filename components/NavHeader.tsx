@@ -4,7 +4,8 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { History, LogOut, MessageCircle, Plus, Wine } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { BRAND_GRADIENT, C, FONTS } from "@/lib/design-tokens";
+import { BRAND_GRADIENT, C } from "@/lib/design-tokens";
+import { CaveGauge } from "@/components/CaveGauge";
 
 const NAV = [
   { href: "/cave", label: "Cave", icon: Wine },
@@ -46,10 +47,8 @@ export function NavHeader() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/icons/icon-mark.png" alt="" style={{ width: "82%", height: "82%", objectFit: "contain" }} />
         </div>
-        <span style={{ fontFamily: FONTS.display, fontSize: 16, color: C.parchment, whiteSpace: "nowrap" }}>
-          Gloops <span style={{ color: C.copper }}>2.0</span>
-        </span>
       </div>
+      <CaveGauge />
       <nav className="gloops-desktop-nav" style={{ gap: 4, background: C.surface, padding: 4, borderRadius: 10, border: `1px solid ${C.hairline}` }}>
         {NAV.map((n) => {
           const active = pathname === n.href;

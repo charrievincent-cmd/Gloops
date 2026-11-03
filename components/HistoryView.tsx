@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, History as HistoryIcon } from "lucide-react";
 import { C, FONTS } from "@/lib/design-tokens";
 import { toSingleLot, type Bottle, type BottleLot } from "@/lib/types";
+import { notifyBottlesChanged } from "@/components/CaveGauge";
 import { createClient } from "@/lib/supabase/client";
 import { BottleCard } from "@/components/BottleCard";
 import { DetailModal } from "@/components/DetailModal";
@@ -31,6 +32,7 @@ export function HistoryView({ initialBottles }: { initialBottles: Bottle[] }) {
       .not("consumed_at", "is", null)
       .order("consumed_at", { ascending: false });
     setBottles((data as Bottle[]) ?? []);
+    notifyBottlesChanged();
   };
 
   // La page peut venir du cache du téléphone (navigation instantanée) :

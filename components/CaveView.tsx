@@ -5,13 +5,14 @@ import { useSearchParams } from "next/navigation";
 import { Grid3x3, Search, Wine } from "lucide-react";
 import { C, FONTS, GAMMES, GAMME_LABEL, WINE_TYPES, inputStyle } from "@/lib/design-tokens";
 import { groupIntoLots, type Bottle, type BottleFormFields, type BottleLot } from "@/lib/types";
+import { notifyBottlesChanged } from "@/components/CaveGauge";
 import { createClient } from "@/lib/supabase/client";
 import { BottleCard } from "@/components/BottleCard";
 import { DetailModal } from "@/components/DetailModal";
 
 export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
   const [bottles, setBottles] = useState(initialBottles);
-  const [filters, setFilters] = useState({ type: "", gamme: "", etagere: "", search: "" });
+  const [filters, setFilters] = useState({ type: "", gamme: "", search: "" });
   const searchParams = useSearchParams();
   const [selectedLotId, setSelectedLotId] = useState<string | null>(() => searchParams.get("open"));
 
@@ -34,6 +35,7 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
       .is("consumed_at", null)
       .order("created_at", { ascending: false });
     setBottles((data as Bottle[]) ?? []);
+    notifyBottlesChanged();
   };
 
   // La page peut venir du cache du téléphone (navigation instantanée) :
@@ -55,15 +57,10 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
   }, []);
 
   const lots = useMemo(() => groupIntoLots(bottles), [bottles]);
-  const etageres = useMemo(
-    () => [...new Set(lots.map((l) => l.etagere).filter(Boolean) as string[])].sort(),
-    [lots],
-  );
 
   const filtered = lots.filter((l) => {
     if (filters.type && l.type !== filters.type) return false;
     if (filters.gamme && l.gamme !== filters.gamme) return false;
-    if (filters.etagere && l.etagere !== filters.etagere) return false;
     if (filters.search) {
       const q = filters.search.toLowerCase();
       const hay = [l.nom, l.vignoble, l.cepages, l.aop, l.igp, l.annee].filter(Boolean).join(" ").toLowerCase();
@@ -154,20 +151,6 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
             </option>
           ))}
         </select>
-        {etageres.length > 0 && (
-          <select
-            value={filters.etagere}
-            onChange={(e) => setFilters((f) => ({ ...f, etagere: e.target.value }))}
-            style={{ ...inputStyle(false), width: 150 }}
-          >
-            <option value="">Toutes étagères</option>
-            {etageres.map((e) => (
-              <option key={e} value={e}>
-                {e}
-              </option>
-            ))}
-          </select>
-        )}
       </div>
 
       {bottles.length === 0 ? (
