@@ -29,6 +29,12 @@ export async function proxy(request: NextRequest) {
 
   const isLoginPage = request.nextUrl.pathname.startsWith("/login");
   const isApiRoute = request.nextUrl.pathname.startsWith("/api");
+  const isAuthCallback = request.nextUrl.pathname.startsWith("/auth/");
+
+  if (isAuthCallback) {
+    // Retour de Google : la session n'existe pas encore, la route la crée.
+    return supabaseResponse;
+  }
 
   if (isApiRoute) {
     // Les routes API vérifient elles-mêmes l'authentification et renvoient une

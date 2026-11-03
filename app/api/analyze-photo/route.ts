@@ -23,6 +23,10 @@ export async function POST(request: Request) {
   if (!user) {
     return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
   }
+  const { data: allowed } = await supabase.rpc("is_allowed");
+  if (!allowed) {
+    return NextResponse.json({ error: "Accès non autorisé" }, { status: 403 });
+  }
 
   const { imageBase64 } = (await request.json()) as { imageBase64?: string };
   if (!imageBase64) {
