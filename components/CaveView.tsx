@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Grid3x3, Search, Wine } from "lucide-react";
 import { C, FONTS, GAMMES, GAMME_LABEL, WINE_TYPES, inputStyle } from "@/lib/design-tokens";
 import { groupIntoLots, type Bottle, type BottleFormFields, type BottleLot } from "@/lib/types";
+import { notifyBottlesChanged } from "@/components/CaveGauge";
 import { createClient } from "@/lib/supabase/client";
 import { BottleCard } from "@/components/BottleCard";
 import { DetailModal } from "@/components/DetailModal";
@@ -34,6 +35,7 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
       .is("consumed_at", null)
       .order("created_at", { ascending: false });
     setBottles((data as Bottle[]) ?? []);
+    notifyBottlesChanged();
   };
 
   // La page peut venir du cache du téléphone (navigation instantanée) :
