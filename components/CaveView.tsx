@@ -80,7 +80,6 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
     a === "Non classé" ? 1 : b === "Non classé" ? -1 : a.localeCompare(b, "fr", { numeric: true }),
   );
 
-  const totalBottles = bottles.length;
   const selectedLot = selectedLotId ? lots.find((l) => l.lot_id === selectedLotId) ?? null : null;
 
   const saveLot = async (lotId: string, fields: Partial<BottleFormFields>) => {
@@ -111,9 +110,6 @@ export function CaveView({ initialBottles }: { initialBottles: Bottle[] }) {
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 8 }}>
         <div>
           <h1 style={{ fontFamily: FONTS.display, fontSize: 26, color: C.parchment, margin: 0 }}>Ma cave</h1>
-          <p style={{ color: C.parchmentMuted, fontSize: 13, margin: "4px 0 0" }}>
-            {totalBottles} bouteille{totalBottles > 1 ? "s" : ""} · capacité 90
-          </p>
         </div>
       </div>
 
